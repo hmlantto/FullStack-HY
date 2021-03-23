@@ -12,6 +12,7 @@ const App = () => {
    
   const [selected, setSelected] = useState(0)
   const [points, setPoints] = useState( new Array(6).fill(0) )
+  const [mostPopularIndex, setMostPopular] = useState(0)
 
   const getRandomInt = (min, max) => {
     min = Math.ceil(min);
@@ -28,14 +29,24 @@ const App = () => {
     const newPoints = [...points]
     newPoints[selectedAnecdote] += 1
     setPoints(newPoints)
+    const newPopularIndex = newPoints.indexOf(Math.max(...newPoints))
+    setMostPopular(newPopularIndex)
   }
 
   return (
     <div>
+      <h1>Anecdote of the day</h1>
+
       {anecdotes[selected]}<br />
       <span>has {points[selected]} votes</span><br />
+
       <Button handleClick={() => voteAnecdote(selected)} text="vote" />
       <Button handleClick={getNextAnecdote} text="next anecdote" />
+
+      <h1>Anecdote with most votes</h1>
+
+      {anecdotes[mostPopularIndex]}<br />
+      <span>has {points[mostPopularIndex]} votes</span>
     </div>
   )
 }
