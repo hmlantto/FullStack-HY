@@ -11,6 +11,7 @@ const App = () => {
   ]
    
   const [selected, setSelected] = useState(0)
+  const [points, setPoints] = useState( new Array(6).fill(0) )
 
   const getRandomInt = (min, max) => {
     min = Math.ceil(min);
@@ -23,12 +24,24 @@ const App = () => {
     setSelected(newRandomInt)
   }
 
+  const voteAnecdote = (selectedAnecdote) => {
+    const newPoints = [...points]
+    newPoints[selectedAnecdote] += 1
+    setPoints(newPoints)
+  }
+
   return (
     <div>
       {anecdotes[selected]}<br />
-      <button onClick={getNextAnecdote}>next anecdote</button>
+      <span>has {points[selected]} votes</span><br />
+      <Button handleClick={() => voteAnecdote(selected)} text="vote" />
+      <Button handleClick={getNextAnecdote} text="next anecdote" />
     </div>
   )
 }
+
+const Button = ( props ) => (
+  <button onClick={props.handleClick}>{props.text}</button>
+)
 
 export default App
