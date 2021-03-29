@@ -1,7 +1,10 @@
 import React, { useState } from 'react'
+import Filter      from './components/Filter'
+import ContactForm from './components/ContactForm'
+import Contacts     from './components/Contacts'
 
 const App = () => {
-  const [ persons, setPersons] = useState([
+  const [ contacts, setContacts] = useState([
     { name: 'Arto Hellas', number: '040-123456' },
     { name: 'Ada Lovelace', number: '39-44-5323523' },
     { name: 'Dan Abramov', number: '12-43-234345' },
@@ -9,24 +12,25 @@ const App = () => {
   ])
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber ] = useState('')
+  const [ filterBy, setFilterBy ] = useState('')
 
-  const addPerson = (event) => {
+  const addContact = (event) => {
     event.preventDefault()
-    const names = persons.map((person) => person.name)
+    const names = contacts.map( (contact) => contact.name.toLowerCase() )
 
-    if (names.includes( newName )) {
-      alert(`${newName} is already added to phonebook`)
+    if (names.includes( newName.toLowerCase() )) {
+      alert(`${newName} is already in phonebook.`)
       setNewName('')
       setNewNumber('')
       return
     }
 
-    const personObject = {
+    const contactObject = {
       name: newName,
       number: newNumber
     }
 
-    setPersons(persons.concat(personObject))
+    setContacts(contacts.concat(contactObject))
     setNewName('')
     setNewNumber('')
   }
@@ -39,26 +43,27 @@ const App = () => {
     setNewNumber(event.target.value)
   }
 
+  const handleFiltering = (event) => {
+    setFilterBy(event.target.value)
+  }
+
+  let containsSubstring = (contact) => ( contact.name.toLowerCase().includes(filterBy.toLowerCase()) )
+  let contactsToShow = contacts.filter(containsSubstring)
+
   return (
     <div>
       <h2>Phonebook</h2>
-      <form onSubmit={addPerson}>
-        <div>
-          name: <input value={newName}
-                       onChange={handleNameChange} />
-        </div>
-        <div>
-          number: <input value={newNumber}
-                         onChange={handleNumberChange} />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
-      <h2>Numbers</h2>
-      {persons.map(person =>
-        <p key={person.name}>{person.name} {person.number}</p>
-      )}
+      <Filter filterBy={filterBy} handleFiltering={handleFiltering} />
+
+      <h3>Add new contact</h3>
+      <ContactForm addContact={addContact}
+                   newName={newName}
+                   handleNameChange={handleNameChange}
+                   newNumber={newNumber}
+                   handleNumberChange={handleNumberChange} />
+
+      <h3>Contacts</h3>
+      <Contacts contacts={contactsToShow} />
     </div>
   )
 
