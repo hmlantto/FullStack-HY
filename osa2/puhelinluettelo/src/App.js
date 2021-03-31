@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import axios       from 'axios'
 import Filter      from './components/Filter'
 import ContactForm from './components/ContactForm'
 import Contacts    from './components/Contacts'
+import contactsService from './services/contacts'
 
 const App = () => {
   const [ contacts, setContacts] = useState([])
@@ -11,10 +11,10 @@ const App = () => {
   const [ filterBy, setFilterBy ] = useState('')
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        setContacts(response.data)
+    contactsService
+      .getAll()
+      .then(initialContacts => {
+        setContacts(initialContacts)
       })
   }, [])
 
@@ -23,7 +23,16 @@ const App = () => {
     const names = contacts.map( (contact) => contact.name.toLowerCase() )
 
     if (names.includes( newName.toLowerCase() )) {
-      alert(`${newName} is already in phonebook.`)
+      if( window.confirm( `${newName} is already in phonebook. Replace the old number with a new one?` ) ) {
+        const oldContact = contacts.find( x => x.name === newName )
+        const changedContact = { ...oldContact, number: newNumber}
+
+        contactsService
+          .update(changedContact.id, changedContact)
+          .then(newContact => {
+            setContacts(contacts.map(contact => contact.id !== changedContact.id ? contact : newContact))
+        })
+      }
       setNewName('')
       setNewNumber('')
       return
@@ -34,9 +43,23 @@ const App = () => {
       number: newNumber
     }
 
-    setContacts(contacts.concat(contactObject))
-    setNewName('')
-    setNewNumber('')
+    contactsService
+      .create(contactObject)
+      .then(newContact => {
+        setContacts(contacts.concat(newContact))
+        setNewName('')
+        setNewNumber('')
+      })
+  }
+
+  const removeContact = (contact) => {
+    if( window.confirm(`Delete ${contact.name}?`) ) {
+      contactsService
+      .remove(contact.id)
+      .then(
+        setContacts(contacts.filter(n => n.id !== contact.id))
+      )
+    }
   }
 
   const handleNameChange = (event) => {
@@ -67,7 +90,7 @@ const App = () => {
                    handleNumberChange={handleNumberChange} />
 
       <h3>Contacts</h3>
-      <Contacts contacts={contactsToShow} />
+      <Contacts contacts={contactsToShow} removeContact={removeContact} />
     </div>
   )
 
