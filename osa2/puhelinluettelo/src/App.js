@@ -3,12 +3,15 @@ import Filter      from './components/Filter'
 import ContactForm from './components/ContactForm'
 import Contacts    from './components/Contacts'
 import contactsService from './services/contacts'
+import Notification from './components/Notification'
 
 const App = () => {
   const [ contacts, setContacts] = useState([])
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber ] = useState('')
   const [ filterBy, setFilterBy ] = useState('')
+  const [ notification, setNotification ] = useState(null)
+  const [ notificationClass, setNotificationClass ] = useState('')
 
   useEffect(() => {
     contactsService
@@ -31,6 +34,19 @@ const App = () => {
           .update(changedContact.id, changedContact)
           .then(newContact => {
             setContacts(contacts.map(contact => contact.id !== changedContact.id ? contact : newContact))
+            setNotification(`Phone number for ${newName} updated`)
+            setNotificationClass('notification')
+            setTimeout(() => {
+              setNotification(null)
+            }, 5000)
+        })
+        .catch(error => {
+          setNotification(`${newName} not found`)
+          setNotificationClass('error')
+          setTimeout(() => {
+            setNotification(null)
+          }, 5000)
+          setContacts(contacts.filter(x => x.id !== changedContact.id))
         })
       }
       setNewName('')
@@ -47,6 +63,11 @@ const App = () => {
       .create(contactObject)
       .then(newContact => {
         setContacts(contacts.concat(newContact))
+        setNotification(`Added ${newName}`)
+        setNotificationClass('notification')
+        setTimeout(() => {
+          setNotification(null)
+        }, 5000)
         setNewName('')
         setNewNumber('')
       })
@@ -56,9 +77,14 @@ const App = () => {
     if( window.confirm(`Delete ${contact.name}?`) ) {
       contactsService
       .remove(contact.id)
-      .then(
+      .then( () => {
         setContacts(contacts.filter(n => n.id !== contact.id))
-      )
+        setNotification(`${contact.name} removed`)
+        setNotificationClass('notification')
+        setTimeout(() => {
+          setNotification(null)
+        }, 5000)
+      })
     }
   }
 
@@ -80,6 +106,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={notification} className={notificationClass} />
       <Filter filterBy={filterBy} handleFiltering={handleFiltering} />
 
       <h3>Add new contact</h3>
