@@ -40,14 +40,14 @@ const App = () => {
               setNotification(null)
             }, 5000)
         })
-        .catch(error => {
-          setNotification(`${newName} not found`)
-          setNotificationClass('error')
-          setTimeout(() => {
-            setNotification(null)
-          }, 5000)
-          setContacts(contacts.filter(x => x.id !== changedContact.id))
-        })
+          .catch(error => {
+            setNotification(`${newName} not found`)
+            setNotificationClass('error')
+            setTimeout(() => {
+              setNotification(null)
+            }, 5000)
+            setContacts(contacts.filter(x => x.id !== changedContact.id))
+          })
       }
       setNewName('')
       setNewNumber('')
@@ -70,6 +70,13 @@ const App = () => {
         }, 5000)
         setNewName('')
         setNewNumber('')
+      })
+      .catch( error => {
+        setNotification( error.response.data.error )
+        setNotificationClass('error')
+        setTimeout(() => {
+          setNotification(null)
+        }, 5000)
       })
   }
 
