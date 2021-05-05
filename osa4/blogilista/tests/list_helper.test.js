@@ -94,3 +94,9 @@ describe( 'author with most blogs', () => {
     expect( listHelper.mostBlogs( biggerList ) ).toEqual( { author: 'Robert C. Martin', blogs: 3 } )
   })
 })
+
+describe( 'author with most likes', () => {
+  test( 'is found correctly', () => {
+    expect( listHelper.mostLikes( biggerList ) ).toEqual( { author: 'Edsger W. Dijkstra', likes: 17 } )
+  })
+})
