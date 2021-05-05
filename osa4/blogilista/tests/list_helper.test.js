@@ -59,7 +59,7 @@ const biggerList = [
     url: 'http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html',
     likes: 2,
     __v: 0
-  }  
+  }
 ]
 
 test( 'dummy returns one', () => {
@@ -86,5 +86,11 @@ describe( 'total likes', () => {
 describe( 'most liked blog', () => {
   test( 'is found correctly', () => {
     expect( listHelper.favoriteBlog( biggerList ) ).toEqual( biggerList[2] )
+  })
+})
+
+describe( 'author with most blogs', () => {
+  test( 'is found correctly', () => {
+    expect( listHelper.mostBlogs( biggerList ) ).toEqual( { author: 'Robert C. Martin', blogs: 3 } )
   })
 })
