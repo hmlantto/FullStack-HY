@@ -58,3 +58,9 @@ describe( 'total likes', () => {
     expect( listHelper.totalLikes( biggerList ) ).toBe( 15 )
   })
 })
+
+describe( 'most liked blog', () => {
+  test( 'is found correctly', () => {
+    expect( listHelper.favoriteBlog( biggerList ) ).toEqual( biggerList[2] )
+  })
+})
