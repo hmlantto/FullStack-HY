@@ -15,6 +15,11 @@ test( 'GET returns correct number of notes', async () => {
   expect( response.body ).toHaveLength( helper.initialBlogs.length )
 })
 
+test( 'field id exists', async () => {
+  const response = await api.get('/api/blogs')
+  expect( response.body[0].id ).toBeDefined()
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
