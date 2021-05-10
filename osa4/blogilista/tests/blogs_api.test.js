@@ -61,33 +61,47 @@ test( 'uninitialized likes field is set to 0', async () => {
   expect( response.body.likes ).toBe( 0 )
 })
 
-test( 'return 400 Bad Request when title not set', async () => {
-  const newBlog = {
-    _id: '6093e985ada165582b92d676',
-    author: 'Megan Nielsen Patterns',
-    url: 'https://blog.megannielsen.com/',
-    likes: 0,
-    __v: 0
-  }
+describe( 'return 400 Bad Request', () => {
+  test( 'when title not set', async () => {
+    const newBlog = {
+      _id: '6093e985ada165582b92d676',
+      author: 'Megan Nielsen Patterns',
+      url: 'https://blog.megannielsen.com/',
+      likes: 0,
+      __v: 0
+    }
 
-  await api
-    .post( '/api/blogs' )
-    .send( newBlog )
-    .expect( 400 )
+    await api
+      .post( '/api/blogs' )
+      .send( newBlog )
+      .expect( 400 )
+  })
+
+  test( 'when url not set', async () => {
+    const newBlog = {
+      _id: '6093e985ada165582b92d677',
+      title: 'Megan Nielsen: the Blog',
+      author: 'Megan Nielsen Patterns',
+      __v: 0
+    }
+
+    await api
+      .post( '/api/blogs' )
+      .send( newBlog )
+      .expect( 400 )
+  })
 })
 
-test( 'return 400 Bad Request when url not set', async () => {
-  const newBlog = {
-    _id: '6093e985ada165582b92d677',
-    title: 'Megan Nielsen: the Blog',
-    author: 'Megan Nielsen Patterns',
-    __v: 0
-  }
+test( 'removing blog by id is successful', async () => {
+  const idToRemove = '5a422bc61b54a676234d17fc' ;
 
   await api
-    .post( '/api/blogs' )
-    .send( newBlog )
-    .expect( 400 )
+    .delete( `/api/blogs/${idToRemove}` )
+    .expect( 204 )
+
+  const blogsAtEnd = await helper.blogsInDb()
+  const ids = blogsAtEnd.map( b => b.id )
+  expect( ids ).not.toContain( idToRemove )
 })
 
 afterAll(() => {
