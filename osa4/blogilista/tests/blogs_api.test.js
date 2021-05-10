@@ -4,7 +4,6 @@ const helper = require( './test_helper' )
 const app = require( '../app' )
 const api = supertest( app )
 const Blog = require( '../models/blog' )
-const blog = require('../models/blog')
 
 beforeEach( async () => {
   await Blog.deleteMany({})
@@ -41,6 +40,24 @@ test( 'blog can be added to database', async () => {
   expect( blogsAtEnd ).toHaveLength( helper.initialBlogs.length + 1 )
   const ids = blogsAtEnd.map( b => b.id )
   expect( ids ).toContain( newBlog._id )
+})
+
+test( 'uninitialized likes field is set to 0', async () => {
+  const newBlog = {
+    _id: '6093e985ada165582b92d675',
+    title: 'Muna and Broad Blog',
+    author: 'Muna and Broad',
+    url: 'https://www.munaandbroad.com/blogs/news',
+    __v: 0
+  }
+
+  await api
+    .post( '/api/blogs' )
+    .send( newBlog )
+    .expect( 201)
+
+  const response = await api.get( `/api/blogs/${newBlog._id}` )
+  expect( response.body.likes ).toBe( 0 )
 })
 
 afterAll(() => {

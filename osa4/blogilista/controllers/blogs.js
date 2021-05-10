@@ -10,8 +10,21 @@ blogsRouter.get( '/', ( request, response, next ) => {
     .catch(error => next(error))
 })
 
+blogsRouter.get( '/:id', ( request, response, next ) => {
+  Blog
+    .findById( request.params.id )
+    .then( blog => {
+      response.json( blog )
+    })
+    .catch(error => next(error))
+})
+
 blogsRouter.post( '/', ( request, response, next ) => {
   const blog = new Blog( request.body )
+
+  if ( blog.likes === undefined ) {
+    blog.likes = 0
+  }
 
   blog
     .save()
