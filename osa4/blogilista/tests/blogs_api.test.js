@@ -48,16 +48,46 @@ test( 'uninitialized likes field is set to 0', async () => {
     title: 'Muna and Broad Blog',
     author: 'Muna and Broad',
     url: 'https://www.munaandbroad.com/blogs/news',
+    likes: 0,
     __v: 0
   }
 
   await api
     .post( '/api/blogs' )
     .send( newBlog )
-    .expect( 201)
+    .expect( 201 )
 
   const response = await api.get( `/api/blogs/${newBlog._id}` )
   expect( response.body.likes ).toBe( 0 )
+})
+
+test( 'return 400 Bad Request when title not set', async () => {
+  const newBlog = {
+    _id: '6093e985ada165582b92d676',
+    author: 'Megan Nielsen Patterns',
+    url: 'https://blog.megannielsen.com/',
+    likes: 0,
+    __v: 0
+  }
+
+  await api
+    .post( '/api/blogs' )
+    .send( newBlog )
+    .expect( 400 )
+})
+
+test( 'return 400 Bad Request when url not set', async () => {
+  const newBlog = {
+    _id: '6093e985ada165582b92d677',
+    title: 'Megan Nielsen: the Blog',
+    author: 'Megan Nielsen Patterns',
+    __v: 0
+  }
+
+  await api
+    .post( '/api/blogs' )
+    .send( newBlog )
+    .expect( 400 )
 })
 
 afterAll(() => {
