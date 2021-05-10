@@ -104,6 +104,25 @@ test( 'removing blog by id is successful', async () => {
   expect( ids ).not.toContain( idToRemove )
 })
 
+test( 'modifying blog is successful', async () => {
+  const blogToModify = {
+    _id: '5a422ba71b54a676234d17fb',
+    title: 'TDD harms architecture',
+    author: 'Robert C. Martin',
+    url: 'http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html',
+    likes: 2,
+    __v: 0
+  }
+
+  await api
+    .put( `/api/blogs/${blogToModify._id}` )
+    .send( blogToModify )
+    .expect( 200 )
+
+  const response = await api.get( `/api/blogs/${blogToModify._id}` )
+  expect( response.body.likes ).toBe( 2 )
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
