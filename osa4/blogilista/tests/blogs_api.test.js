@@ -93,7 +93,7 @@ describe( 'return 400 Bad Request', () => {
 })
 
 test( 'removing blog by id is successful', async () => {
-  const idToRemove = '5a422bc61b54a676234d17fc' ;
+  const idToRemove = '5a422bc61b54a676234d17fc'
 
   await api
     .delete( `/api/blogs/${idToRemove}` )
