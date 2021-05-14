@@ -1,7 +1,6 @@
-const jwt = require( 'jsonwebtoken' )
+const { tokenExtractor, userExtractor } = require('../utils/middleware')
 const blogsRouter = require( 'express' ).Router()
 const Blog = require( '../models/blog' )
-const User = require( '../models/user' )
 
 blogsRouter.get( '/', async ( request, response ) => {
   const blogs = await Blog
@@ -20,49 +19,35 @@ blogsRouter.get( '/:id', async ( request, response ) => {
   }
 })
 
-blogsRouter.post( '/', async ( request, response ) => {
+blogsRouter.post( '/', tokenExtractor, userExtractor, async ( request, response ) => {
   const blog = new Blog( request.body )
 
   if ( blog.title === undefined || blog.url === undefined ) {
     return response.status( 400 ).end()
   }
 
-  if ( !request.token ) {
-    return response.status( 401 ).json( { error: 'token missing or invalid' } )
-  }
-
-  const decodedToken = jwt.verify( request.token, process.env.SECRET )
-  if ( !decodedToken.id ) {
-    return response.status( 401 ).json( { error: 'token invalid' } )
-  }
-
-  const user = await User.findById( decodedToken.id )
-  blog.user = user._id
+  blog.user = request.user._id
 
   if ( blog.likes === undefined ) {
     blog.likes = 0
   }
 
   const savedBlog = await blog.save()
-  user.blogs = user.blogs.concat( savedBlog._id )
-  user.save()
+  request.user.blogs = request.user.blogs.concat( savedBlog._id )
+  request.user.save()
 
   response.status( 201 ).json( savedBlog )
 })
 
-blogsRouter.delete( '/:id', async ( request, response ) => {
-  const blog = await Blog.findById( request.params.id )
-
-  if ( !request.token ) {
-    return response.status( 401 ).json( { error: 'token missing or invalid' } )
-  }
-
-  const decodedToken = jwt.verify( request.token, process.env.SECRET )
-  if ( !decodedToken.id || blog.user.toString() !== decodedToken.id ) {
-    return response.status( 401 ).json( { error: 'token invalid' } )
+blogsRouter.delete( '/:id', tokenExtractor, userExtractor, async ( request, response ) => {
+  if ( request.user._id.toString() !== request.token.id ) {
+    return response.status( 401 ).json( { error: 'not authorized' } )
   }
 
   await Blog.findByIdAndDelete( request.params.id )
+  request.user.blogs = request.user.blogs.filter( x => x.id !== request.params.id )
+  request.user.save()
+
   response.status( 204 ).end()
 })
 
