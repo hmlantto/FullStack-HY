@@ -3,16 +3,20 @@ const supertest = require( 'supertest' )
 const helper = require( './test_helper' )
 const app = require( '../app' )
 const api = supertest( app )
+const jwt = require('jsonwebtoken')
 const Blog = require( '../models/blog' )
-const bcrypt = require('bcrypt')
 const User = require( '../models/user' )
 
-describe('when there are initially some blogs in db', () => {
-  beforeEach( async () => {
-    await Blog.deleteMany({})
-    await Blog.insertMany( helper.initialBlogs )
-  })
+beforeEach( async () => {
+  await Blog.deleteMany({})
+  await Blog.insertMany( helper.initialBlogs )
 
+  await User.deleteMany({})
+  const initialUser = await helper.getInitialUser()
+  await initialUser.save()
+})
+
+describe( 'when testing blogsRouter', () => {
   test( 'GET returns correct number of notes', async () => {
     const response = await api.get( '/api/blogs' )
     expect( response.body ).toHaveLength( helper.initialBlogs.length )
@@ -33,8 +37,11 @@ describe('when there are initially some blogs in db', () => {
       __v: 0
     }
 
+    const token = jwt.sign( helper.userForToken, process.env.SECRET )
+
     await api
       .post( '/api/blogs' )
+      .set('Authorization', 'bearer ' + token )
       .send( newBlog )
       .expect( 201 )
       .expect( 'Content-Type', /application\/json/ )
@@ -55,8 +62,11 @@ describe('when there are initially some blogs in db', () => {
       __v: 0
     }
 
+    const token = jwt.sign( helper.userForToken, process.env.SECRET )
+
     await api
       .post( '/api/blogs' )
+      .set('Authorization', 'bearer ' + token )
       .send( newBlog )
       .expect( 201 )
 
@@ -74,9 +84,12 @@ describe('when there are initially some blogs in db', () => {
         __v: 0
       }
 
+      const token = jwt.sign( helper.userForToken, process.env.SECRET )
+
       await api
         .post( '/api/blogs' )
         .send( newBlog )
+        .set('Authorization', 'bearer ' + token )
         .expect( 400 )
     })
 
@@ -88,23 +101,32 @@ describe('when there are initially some blogs in db', () => {
         __v: 0
       }
 
+      const token = jwt.sign( helper.userForToken, process.env.SECRET )
+
       await api
         .post( '/api/blogs' )
         .send( newBlog )
+        .set('Authorization', 'bearer ' + token )
         .expect( 400 )
     })
   })
 
   test( 'removing blog by id is successful', async () => {
     const idToRemove = '5a422bc61b54a676234d17fc'
+    const token = jwt.sign( helper.userForToken, process.env.SECRET )
 
     await api
       .delete( `/api/blogs/${idToRemove}` )
+      .set('Authorization', 'bearer ' + token )
       .expect( 204 )
 
     const blogsAtEnd = await helper.blogsInDb()
     const ids = blogsAtEnd.map( b => b.id )
     expect( ids ).not.toContain( idToRemove )
+
+    const userId = '60a22c0b47b42e0ba476b7a2'
+    const user = await api.get( `/api/users/${userId}` )
+    expect( user.body.blogs ).not.toContain( idToRemove )
   })
 
   test( 'modifying blog is successful', async () => {
@@ -125,27 +147,30 @@ describe('when there are initially some blogs in db', () => {
     const response = await api.get( `/api/blogs/${blogToModify._id}` )
     expect( response.body.likes ).toBe( 2 )
   })
+
+  test( 'adding blog without token returns 401 Unauthorized', async () => {
+    const newBlog = {
+      _id: '6093e985ada165582b92d674',
+      title: 'Cashmerette Blog',
+      author: 'Cashmerette',
+      url: 'https://blog.cashmerette.com/',
+      likes: 5,
+      __v: 0
+    }
+
+    await api
+      .post( '/api/blogs' )
+      .send( newBlog )
+      .expect( 401 )
+  })
 })
 
-describe('when there is initially one user in db', () => {
-  beforeEach( async () => {
-    await User.deleteMany({})
-
-    const passwordHash = await bcrypt.hash('yetanotherpassword', 10)
-    const user = new User(
-      { username: 'mchan',
-        name: 'Michael Chan',
-        passwordHash
-      })
-
-    await user.save()
-  })
-
+describe( 'when testing usersRouter', () => {
   describe( 'return 400 Bad Request', () => {
     test( 'when username not set', async () => {
       const newUser = {
-        name: 'Michael Chan',
-        password: 'yetanotherpassword',
+        name: 'Robert C. Martin',
+        password: 'testpassword',
       }
 
       await api
@@ -156,9 +181,9 @@ describe('when there is initially one user in db', () => {
 
     test( 'when username too short', async () => {
       const newUser = {
-        username: 'mc',
-        name: 'Michael Chan',
-        password: 'yetanotherpassword',
+        username: 'rc',
+        name: 'Robert C. Martin',
+        password: 'testpassword',
       }
 
       await api
@@ -170,8 +195,8 @@ describe('when there is initially one user in db', () => {
     test( 'when username not unique', async () => {
       const newUser = {
         username: 'mchan',
-        name: 'Michael Chan',
-        password: 'yetanotherpassword',
+        name: 'Robert C. Martin',
+        password: 'testpassword',
       }
 
       await api
@@ -182,8 +207,8 @@ describe('when there is initially one user in db', () => {
 
     test( 'when password not set', async () => {
       const newUser = {
-        username: 'mchan',
-        name: 'Michael Chan',
+        username: 'rcmartin',
+        name: 'Robert C. Martin',
       }
 
       await api
@@ -194,8 +219,8 @@ describe('when there is initially one user in db', () => {
 
     test( 'when password too short', async () => {
       const newUser = {
-        username: 'mchan',
-        name: 'Michael Chan',
+        username: 'rcmartin',
+        name: 'Robert C. Martin',
         password: 'pw',
       }
 
