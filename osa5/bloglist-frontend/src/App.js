@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import Notification from './components/Notification'
 
 const App = () => {
   const [ blogs, setBlogs ] = useState( [] )
@@ -13,6 +14,9 @@ const App = () => {
   const [ blogTitle, setBlogTitle ] = useState( '' )
   const [ blogAuthor, setBlogAuthor ] = useState( '' )
   const [ blogUrl, setBlogUrl ] = useState( '' )
+
+  const [ notification, setNotification ] = useState(null)
+  const [ notificationClass, setNotificationClass ] = useState('')
 
   useEffect(() => {
     blogService.getAll().then( blogs =>
@@ -46,7 +50,11 @@ const App = () => {
       setPassword( '' )
     
     } catch ( exception ) {
-      console.log( 'Login failed.' )
+      setNotification( `wrong username or password` )
+            setNotificationClass( 'error' )
+            setTimeout(() => {
+              setNotification( null )
+            }, 5000)
     }
   }
 
@@ -71,16 +79,27 @@ const App = () => {
       setBlogAuthor( '' )
       setBlogUrl( '' )
 
+      setNotification( `a new blog ${newBlog.title} by ${newBlog.author} added` )
+      setNotificationClass( 'notification' )
+      setTimeout(() => {
+        setNotification( null )
+      }, 5000)
+      
     } catch ( exception ) {
-      console.log( 'Something went wrong.' )
+      setNotification( `Something went wrong` )
+            setNotificationClass( 'error' )
+            setTimeout(() => {
+              setNotification( null )
+            }, 5000)
     }
-
   }
 
   if ( user === null ) {
     return (
       <div>
         <h2>Log in to application</h2>
+        
+        <Notification message={notification} className={notificationClass} />
         <form onSubmit={ handleLogin }>
         <div>
           username
@@ -107,6 +126,8 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
+      
+      <Notification message={notification} className={notificationClass} />
 
       <p>
         { user.name } logged in
