@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
+import blogService from '../services/blogs'
 
-const Blog = ({blog}) => {
+const Blog = ( props ) => {
+  const { blog, onBlogLiked } = props
+
   const [ showAll, setShowAll ] = useState( false )
 
   const blogStyle = {
@@ -15,6 +18,26 @@ const Blog = ({blog}) => {
     setShowAll( !showAll )
   }
 
+  const addLike = async ( event ) => {
+    event.preventDefault()
+
+    const blogObject = {
+      title: blog.title,
+      author: blog.author,
+      url: blog.url,
+      likes: (blog.likes + 1),
+      user: blog.user.id
+    }
+
+    try {
+      const updatedBlog = await blogService.update( blog.id, blogObject )
+      onBlogLiked( updatedBlog.id )
+
+    } catch ( exception ) {
+      console.log( exception.message )
+    }
+  }
+
   if ( showAll === false ) {
     return (
       <div style={ blogStyle }>
@@ -27,7 +50,7 @@ const Blog = ({blog}) => {
     <div style={ blogStyle }>
       { blog.title } { blog.author } <button onClick={ toggleVisibility }>hide</button><br />
       { blog.url }<br />
-      likes { blog.likes } <button>like</button><br />
+      likes { blog.likes } <button onClick={ addLike }>like</button><br />
       { blog.user.name }
     </div>  
   )

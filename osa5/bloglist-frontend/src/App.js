@@ -76,12 +76,16 @@ const App = () => {
       }, 5000)
       
     } catch ( exception ) {
-      setNotification( `Something went wrong` )
-            setNotificationClass( 'error' )
-            setTimeout(() => {
-              setNotification( null )
-            }, 5000)
+      setNotification( exception.message )
+      setNotificationClass( 'error' )
+      setTimeout(() => {
+        setNotification( null )
+      }, 5000)
     }
+  }
+
+  const onBlogLiked = ( id ) => {
+    setBlogs( blogs.map( blog => blog.id === id ? { ...blog, likes: blog.likes+1 } : blog ) )
   }
 
   if ( user === null ) {
@@ -129,7 +133,7 @@ const App = () => {
       </Togglable>
 
         {blogs.map( blog =>
-        <Blog key={ blog.id } blog={ blog } />
+        <Blog key={ blog.id } blog={ blog } onBlogLiked={onBlogLiked} />
       )}
     </div>
   )
