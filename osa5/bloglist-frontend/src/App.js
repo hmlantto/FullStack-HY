@@ -101,6 +101,10 @@ const App = () => {
     setBlogs( updatedBlogs.sort( compareByLikesDescending ) )
   }
 
+  const onBlogDeleted = ( id ) => {
+    setBlogs( blogs.filter( blog => blog.id !== id ) )
+  }
+
   if ( user === null ) {
     return (
       <div>
@@ -146,7 +150,7 @@ const App = () => {
       </Togglable>
 
         {blogs.map( blog =>
-        <Blog key={ blog.id } blog={ blog } onBlogLiked={onBlogLiked} />
+        <Blog key={ blog.id } blog={ blog } user={ user } onBlogLiked={ onBlogLiked } onBlogDeleted={onBlogDeleted} />
       )}
     </div>
   )
