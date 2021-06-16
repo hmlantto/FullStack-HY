@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 import blogService from '../services/blogs'
 
 const Blog = ( props ) => {
@@ -57,7 +58,7 @@ const Blog = ( props ) => {
     return (
       <div style={ blogStyle }>
         { blog.title } { blog.author } <button type="button" onClick={ toggleVisibility }>view</button>
-      </div>  
+      </div>
     )
   }
 
@@ -71,8 +72,15 @@ const Blog = ( props ) => {
         <br />
         <button type="button" style={{ backgroundColor: '#809fff' }} onClick={ removeBlog }>remove</button>
       </span>
-    </div>  
+    </div>
   )
+}
+
+Blog.propTypes = {
+  blog: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
+  onBlogLiked: PropTypes.func.isRequired,
+  onBlogDeleted: PropTypes.func.isRequired
 }
 
 export default Blog

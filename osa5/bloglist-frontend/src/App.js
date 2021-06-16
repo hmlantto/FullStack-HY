@@ -8,8 +8,8 @@ import CreateBlogForm from './components/CreateBlogForm'
 
 const App = () => {
   const [ blogs, setBlogs ] = useState( [] )
-  
-  const [ username, setUsername ] = useState( '' ) 
+
+  const [ username, setUsername ] = useState( '' )
   const [ password, setPassword ] = useState( '' )
   const [ user, setUser ] = useState( null )
 
@@ -33,7 +33,7 @@ const App = () => {
   useEffect(() => {
     blogService.getAll().then( allBlogs =>
       setBlogs( allBlogs.sort( compareByLikesDescending ) )
-    )  
+    )
   }, [])
 
   useEffect(() => {
@@ -46,7 +46,7 @@ const App = () => {
 
   const handleLogin = async ( event ) => {
     event.preventDefault()
-    
+
     try {
       const user = await loginService.login({
         username, password,
@@ -60,13 +60,13 @@ const App = () => {
       setUser( user )
       setUsername( '' )
       setPassword( '' )
-    
+
     } catch ( exception ) {
-      setNotification( `wrong username or password` )
-            setNotificationClass( 'error' )
-            setTimeout(() => {
-              setNotification( null )
-            }, 5000)
+      setNotification( 'wrong username or password' )
+      setNotificationClass( 'error' )
+      setTimeout(() => {
+        setNotification( null )
+      }, 5000)
     }
   }
 
@@ -86,7 +86,7 @@ const App = () => {
       setTimeout(() => {
         setNotification( null )
       }, 5000)
-      
+
     } catch ( exception ) {
       setNotification( exception.message )
       setNotificationClass( 'error' )
@@ -109,26 +109,26 @@ const App = () => {
     return (
       <div>
         <h2>Log in to application</h2>
-        
+
         <Notification message={notification} className={notificationClass} />
         <form onSubmit={ handleLogin }>
-        <div>
+          <div>
           username
             <input  type="text"
-                    value={ username }
-                    name="Username"
-                    onChange={({ target }) => setUsername( target.value )}
-          />
-        </div>
-        <div>
+              value={ username }
+              name="Username"
+              onChange={({ target }) => setUsername( target.value )}
+            />
+          </div>
+          <div>
           password
             <input  type="password"
-                    value={ password }
-                    name="Password"
-                    onChange={({ target }) => setPassword( target.value )}
-          />
-        </div>
-        <button type="submit">login</button>
+              value={ password }
+              name="Password"
+              onChange={({ target }) => setPassword( target.value )}
+            />
+          </div>
+          <button type="submit">login</button>
         </form>
       </div>
     )
@@ -137,7 +137,7 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-      
+
       <Notification message={notification} className={notificationClass} />
 
       <p>
@@ -149,7 +149,7 @@ const App = () => {
         <CreateBlogForm createBlog={ createBlog }/>
       </Togglable>
 
-        {blogs.map( blog =>
+      {blogs.map( blog =>
         <Blog key={ blog.id } blog={ blog } user={ user } onBlogLiked={ onBlogLiked } onBlogDeleted={onBlogDeleted} />
       )}
     </div>
