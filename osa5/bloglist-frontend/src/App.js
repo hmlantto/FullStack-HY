@@ -18,9 +18,21 @@ const App = () => {
 
   const blogFormRef = useRef()
 
+  const compareByLikesDescending = function ( blog1, blog2 ) {
+    if ( blog2.likes !== blog1.likes ) {
+      return blog2.likes - blog1.likes
+    }
+
+    if ( blog1.title.toUpperCase() > blog2.title.toUpperCase() ) {
+      return 1
+    }
+
+    return -1
+  }
+
   useEffect(() => {
-    blogService.getAll().then( blogs =>
-      setBlogs( blogs )
+    blogService.getAll().then( allBlogs =>
+      setBlogs( allBlogs.sort( compareByLikesDescending ) )
     )  
   }, [])
 
@@ -85,7 +97,8 @@ const App = () => {
   }
 
   const onBlogLiked = ( id ) => {
-    setBlogs( blogs.map( blog => blog.id === id ? { ...blog, likes: blog.likes+1 } : blog ) )
+    const updatedBlogs = blogs.map( blog => blog.id === id ? { ...blog, likes: blog.likes+1 } : blog )
+    setBlogs( updatedBlogs.sort( compareByLikesDescending ) )
   }
 
   if ( user === null ) {
