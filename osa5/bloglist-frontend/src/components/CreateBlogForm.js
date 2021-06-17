@@ -27,25 +27,31 @@ const CreateBlogForm = ( props ) => {
       <form onSubmit={ addBlog }>
         <div>
           title:
-          <input  type="text"
+          <input
+            type="text"
             value={ blogTitle }
             name="title"
+            className="title"
             onChange={({ target }) => setBlogTitle( target.value )}
           />
         </div>
         <div>
           author:
-          <input  type="text"
+          <input
+            type="text"
             value={ blogAuthor }
             name="author"
+            className="author"
             onChange={({ target }) => setBlogAuthor( target.value )}
           />
         </div>
         <div>
           url:
-          <input  type="text"
+          <input
+            type="text"
             value={ blogUrl }
             name="url"
+            className="url"
             onChange={({ target }) => setBlogUrl( target.value )}
           />
         </div>
