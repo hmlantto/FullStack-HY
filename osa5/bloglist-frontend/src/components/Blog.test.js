@@ -1,6 +1,6 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
-import { render } from '@testing-library/react'
+import { render, fireEvent } from '@testing-library/react'
 import Blog from './Blog'
 
 describe('<Blog />', () => {
@@ -32,7 +32,7 @@ describe('<Blog />', () => {
     )
   })
 
-  describe('at first', () => {
+  describe('initially', () => {
     test('renders title', () => {
       expect( component.container ).toHaveTextContent( 'Test Blog' )
     })
@@ -47,6 +47,29 @@ describe('<Blog />', () => {
 
     test('does not render likes', () => {
       expect( component.container ).not.toHaveTextContent( 'likes' )
+    })
+  })
+
+  describe('after clicking view', () => {
+    beforeEach(() => {
+      const button = component.getByText( 'view' )
+      fireEvent.click( button )
+    })
+
+    test('renders title', () => {
+      expect( component.container ).toHaveTextContent( 'Test Blog' )
+    })
+
+    test('renders author', () => {
+      expect( component.container ).toHaveTextContent( 'Test Author' )
+    })
+
+    test('renders url', () => {
+      expect( component.container ).toHaveTextContent( 'https://testurl.com/' )
+    })
+
+    test('renders likes', () => {
+      expect( component.container ).toHaveTextContent( 'likes' )
     })
   })
 
