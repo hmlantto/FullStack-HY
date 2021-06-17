@@ -96,9 +96,15 @@ const App = () => {
     }
   }
 
-  const onBlogLiked = ( id ) => {
-    const updatedBlogs = blogs.map( blog => blog.id === id ? { ...blog, likes: blog.likes+1 } : blog )
-    setBlogs( updatedBlogs.sort( compareByLikesDescending ) )
+  const onBlogLiked = async ( id, blogObject ) => {
+    try {
+      await blogService.update( id, blogObject )
+      const updatedBlogs = blogs.map( blog => blog.id === id ? { ...blog, likes: blog.likes+1 } : blog )
+      setBlogs( updatedBlogs.sort( compareByLikesDescending ) )
+
+    } catch ( exception ) {
+      console.log( exception.message )
+    }
   }
 
   const onBlogDeleted = ( id ) => {

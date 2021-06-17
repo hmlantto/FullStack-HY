@@ -32,13 +32,7 @@ const Blog = ( props ) => {
       user: blog.user.id
     }
 
-    try {
-      const updatedBlog = await blogService.update( blog.id, blogObject )
-      onBlogLiked( updatedBlog.id )
-
-    } catch ( exception ) {
-      console.log( exception.message )
-    }
+    onBlogLiked( blog.id, blogObject )
   }
 
   const removeBlog = async ( event ) => {
