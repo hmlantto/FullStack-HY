@@ -31,7 +31,7 @@ const CreateBlogForm = ( props ) => {
             type="text"
             value={ blogTitle }
             name="title"
-            className="title"
+            id="title"
             onChange={({ target }) => setBlogTitle( target.value )}
           />
         </div>
@@ -41,7 +41,7 @@ const CreateBlogForm = ( props ) => {
             type="text"
             value={ blogAuthor }
             name="author"
-            className="author"
+            id="author"
             onChange={({ target }) => setBlogAuthor( target.value )}
           />
         </div>
@@ -51,7 +51,7 @@ const CreateBlogForm = ( props ) => {
             type="text"
             value={ blogUrl }
             name="url"
-            className="url"
+            id="url"
             onChange={({ target }) => setBlogUrl( target.value )}
           />
         </div>
