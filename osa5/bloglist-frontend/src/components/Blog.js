@@ -50,14 +50,14 @@ const Blog = ( props ) => {
 
   if ( showAll === false ) {
     return (
-      <div style={ blogStyle }>
+      <div className="blog-element" style={ blogStyle }>
         { blog.title } { blog.author } <button type="button" onClick={ toggleVisibility }>view</button>
       </div>
     )
   }
 
   return (
-    <div style={ blogStyle }>
+    <div className="blog-element" style={ blogStyle }>
       { blog.title } { blog.author } <button type="button" onClick={ toggleVisibility }>hide</button><br />
       { blog.url }<br />
       likes { blog.likes } <button type="button" onClick={ addLike }>like</button><br />

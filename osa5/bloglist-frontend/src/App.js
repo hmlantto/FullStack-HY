@@ -41,6 +41,7 @@ const App = () => {
     if ( loggedUserJSON ) {
       const user = JSON.parse( loggedUserJSON )
       setUser( user )
+      blogService.setToken( user.token )
     }
   }, [])
 
@@ -55,8 +56,8 @@ const App = () => {
       window.localStorage.setItem(
         'loggedBloglistUser', JSON.stringify( user )
       )
-
       blogService.setToken( user.token )
+
       setUser( user )
       setUsername( '' )
       setPassword( '' )
@@ -123,6 +124,7 @@ const App = () => {
             <input  type="text"
               value={ username }
               name="Username"
+              id="username"
               onChange={({ target }) => setUsername( target.value )}
             />
           </div>
@@ -131,10 +133,11 @@ const App = () => {
             <input  type="password"
               value={ password }
               name="Password"
+              id="password"
               onChange={({ target }) => setPassword( target.value )}
             />
           </div>
-          <button type="submit">login</button>
+          <button type="submit" id="login-button">login</button>
         </form>
       </div>
     )
@@ -156,7 +159,12 @@ const App = () => {
       </Togglable>
 
       {blogs.map( blog =>
-        <Blog key={ blog.id } blog={ blog } user={ user } onBlogLiked={ onBlogLiked } onBlogDeleted={ onBlogDeleted } />
+        <Blog
+          key={ blog.id }
+          blog={ blog }
+          user={ user }
+          onBlogLiked={ onBlogLiked }
+          onBlogDeleted={ onBlogDeleted } />
       )}
     </div>
   )
