@@ -34,6 +34,11 @@
       "content": "Test anecdote.",
       "votes": 0,
       "id": "VHekDqc"
+    },
+    {
+      "content": "New anecdote",
+      "votes": 0,
+      "id": "NPycTUm"
     }
   ]
 }
