@@ -2,21 +2,10 @@ import React from 'react'
 import { useSelector } from 'react-redux'
 
 const Notification = () => {
-  const notifState = useSelector( state => state.notification )
+  const notification = useSelector( state => state.notification )
 
-  if ( notifState === null ) {
+  if ( notification === null ) {
     return null
-  }
-
-  const notifContent = notifState.data.notification
-  const notifType = notifState.data.notifType
-  let notifText = ''
-
-  if ( notifType === 'create' ) {
-    notifText = 'you created'
-  }
-  else if ( notifType === 'vote' ) {
-    notifText = 'you voted'
   }
 
   const style = {
@@ -26,7 +15,7 @@ const Notification = () => {
   }
   return (
     <div style={ style }>
-      {notifText} '{ notifContent }'
+      { notification }
     </div>
   )
 }
