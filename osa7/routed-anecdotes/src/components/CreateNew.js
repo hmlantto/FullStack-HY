@@ -1,18 +1,18 @@
-import React, { useState } from 'react'
+import React         from 'react'
+import { useField  } from '../hooks'
 
 const CreateNew = (props) => {
-  const [content, setContent] = useState('')
-  const [author, setAuthor] = useState('')
-  const [info, setInfo] = useState('')
+  const content = useField( 'text' )
+  const author  = useField( 'text' )
+  const info    = useField( 'text' )
 
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const handleSubmit = ( event ) => {
+    event.preventDefault()
     props.addNew({
-      content,
-      author,
-      info,
-      votes: 0
+      content: content.value,
+      author:  author.value,
+      info:    info.value,
+      votes:   0
     })
   }
 
@@ -21,16 +21,13 @@ const CreateNew = (props) => {
       <h2>create a new anecdote</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          content
-          <input name='content' value={content} onChange={(e) => setContent(e.target.value)} />
+          content < input { ...content } />
         </div>
         <div>
-          author
-          <input name='author' value={author} onChange={(e) => setAuthor(e.target.value)} />
+          author <input { ...author } />
         </div>
         <div>
-          url for more info
-          <input name='info' value={info} onChange={(e)=> setInfo(e.target.value)} />
+          url for more info <input { ...info } />
         </div>
         <button>create</button>
       </form>
