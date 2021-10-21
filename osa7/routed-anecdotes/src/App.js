@@ -1,18 +1,11 @@
-import React, { useState } from 'react'
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link,
-  useRouteMatch,
-  useHistory
-} from "react-router-dom"
-import About from './components/About'
-import Footer from './components/Footer'
-import CreateNew from './components/CreateNew'
-import Anecdote from './components/Anecdote'
+import React, { useState }                          from 'react'
+import { Switch, Route, useRouteMatch, useHistory } from "react-router-dom"
+import About        from './components/About'
+import Footer       from './components/Footer'
+import CreateNew    from './components/CreateNew'
+import Anecdote     from './components/Anecdote'
 import AnecdoteList from './components/AnecdoteList'
-import Menu from './components/Menu'
+import Menu         from './components/Menu'
 import Notification from './components/Notification'
 
 const App = () => {
