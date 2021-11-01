@@ -1,3 +1,20 @@
+h2 {
+  margin: 1rem 0;
+}
+
+.btn {
+  margin: 1rem 0;
+}
+
+.btn-sm {
+  margin: 0;
+  
+}
+
+.small-button {
+  padding: 0 0.5rem;
+}
+
 .notification {
   background: lightgrey;
   font-size: 20px;

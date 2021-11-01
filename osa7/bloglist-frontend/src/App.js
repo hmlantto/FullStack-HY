@@ -1,158 +1,85 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { useDispatch } from 'react-redux'
-import Blog from './components/Blog'
-import blogService from './services/blogs'
-import loginService from './services/login'
+import React, { useEffect, useState }         from 'react'
+import { useDispatch, useSelector }           from 'react-redux'
+import { BrowserRouter, Switch, Route, Link } from 'react-router-dom'
+import { Navbar, Nav }                        from 'react-bootstrap'
+
+import { initializeBlogs } from './reducers/blogReducer'
+import { setLogin }        from './reducers/loginReducer'
+import { initializeUsers } from './reducers/userReducer'
+
+import Blog         from './components/Blog'
+import Blogs        from './components/Blogs'
+import LoggedIn     from './components/LoggedIn'
+import LoginForm    from './components/LoginForm'
 import Notification from './components/Notification'
-import Togglable from './components/Togglable'
-import CreateBlogForm from './components/CreateBlogForm'
-import { setNotification } from './reducers/notificationReducer'
+import User         from './components/User'
+import Users        from './components/Users'
 
 const App = () => {
-  const [ blogs, setBlogs ] = useState( [] )
+  const dispatch = useDispatch()
+  const user = useSelector( state => state.login )
 
   const [ username, setUsername ] = useState( '' )
   const [ password, setPassword ] = useState( '' )
-  const [ user, setUser ] = useState( null )
 
-  const blogFormRef = useRef()
-  const dispatch = useDispatch()
-
-  const compareByLikesDescending = function ( blog1, blog2 ) {
-    if ( blog2.likes !== blog1.likes ) {
-      return blog2.likes - blog1.likes
-    }
-
-    if ( blog1.title.toUpperCase() > blog2.title.toUpperCase() ) {
-      return 1
-    }
-
-    return -1
-  }
+  useEffect( () => {
+    dispatch( initializeBlogs() )
+    dispatch( initializeUsers() )
+  }, [ dispatch ] )
 
   useEffect(() => {
-    blogService.getAll().then( allBlogs =>
-      setBlogs( allBlogs.sort( compareByLikesDescending ) )
-    )
+    dispatch( setLogin() )
   }, [])
 
-  useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedBloglistUser')
-    if ( loggedUserJSON ) {
-      const user = JSON.parse( loggedUserJSON )
-      setUser( user )
-      blogService.setToken( user.token )
-    }
-  }, [])
-
-  const handleLogin = async ( event ) => {
-    event.preventDefault()
-
-    try {
-      const user = await loginService.login({
-        username, password,
-      })
-
-      window.localStorage.setItem(
-        'loggedBloglistUser', JSON.stringify( user )
-      )
-      blogService.setToken( user.token )
-
-      setUser( user )
-      setUsername( '' )
-      setPassword( '' )
-
-    } catch ( exception ) {
-      dispatch( setNotification( 'wrong username or password', 'error', 5 ) )
-    }
-  }
-
-  const handleLogout = () => {
-    window.localStorage.removeItem('loggedBloglistUser')
-    setUser( null )
-  }
-
-  const createBlog = async ( blogObject ) => {
-    try {
-      const newBlog = await blogService.create( blogObject )
-      setBlogs( blogs.concat( newBlog ) )
-      blogFormRef.current.toggleVisibility()
-
-      dispatch( setNotification( `a new blog ${newBlog.title} by ${newBlog.author} added`, 'notification', 30 ) )
-    } catch ( exception ) {
-      dispatch( setNotification( exception.message, 'error', 5 ) )
-    }
-  }
-
-  const onBlogLiked = async ( id, blogObject ) => {
-    try {
-      await blogService.update( id, blogObject )
-      const updatedBlogs = blogs.map( blog => blog.id === id ? { ...blog, likes: blog.likes+1 } : blog )
-      setBlogs( updatedBlogs.sort( compareByLikesDescending ) )
-
-    } catch ( exception ) {
-      console.log( exception.message )
-    }
-  }
-
-  const onBlogDeleted = ( id ) => {
-    setBlogs( blogs.filter( blog => blog.id !== id ) )
+  const padding = {
+    padding: 5
   }
 
   if ( user === null ) {
     return (
-      <div>
-        <h2>Log in to application</h2>
-
+      <div className="container">
         <Notification />
-        <form onSubmit={ handleLogin }>
-          <div>
-          username
-            <input  type="text"
-              value={ username }
-              name="Username"
-              id="username"
-              onChange={({ target }) => setUsername( target.value )}
-            />
-          </div>
-          <div>
-          password
-            <input  type="password"
-              value={ password }
-              name="Password"
-              id="password"
-              onChange={({ target }) => setPassword( target.value )}
-            />
-          </div>
-          <button type="submit" id="login-button">login</button>
-        </form>
+        <LoginForm username={ username } setUsername={ setUsername } password={ password } setPassword={ setPassword } />
       </div>
     )
   }
 
   return (
-    <div>
-      <h2>blogs</h2>
+    <div className="container">
+      <BrowserRouter>
+        <Navbar collapseOnSelect expand="lg" bg="light" variant="light">
+          <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+          <Navbar.Collapse>
+            <Nav className="mr-auto">
+              <Nav.Link href="#" as="span">
+                <Link style={padding} to="/">blogs</Link>
+              </Nav.Link>
+              <Nav.Link href="#" as="span">
+                <Link style={padding} to="/users">users</Link>
+              </Nav.Link>
+              <span style={padding}><LoggedIn user={ user } /></span>
+            </Nav>
+          </Navbar.Collapse>
+        </Navbar>
+        <div>
+          <Notification />
 
-      <Notification />
-
-      <p>
-        { user.name } logged in
-        <button type="button" onClick={ handleLogout }>logout</button>
-      </p>
-
-      <Togglable buttonLabel='create new blog' ref={ blogFormRef }>
-        <CreateBlogForm createBlog={ createBlog }/>
-      </Togglable>
-
-      {blogs.map( blog =>
-        <Blog
-          key={ blog.id }
-          blog={ blog }
-          user={ user }
-          onBlogLiked={ onBlogLiked }
-          onBlogDeleted={ onBlogDeleted } />
-      )}
+          <Switch>
+            <Route path="/users/:id">
+              <User />
+            </Route>
+            <Route path="/users">
+              <Users />
+            </Route>
+            <Route path="/blogs/:id">
+              <Blog user={ user } />
+            </Route>
+            <Route path="/">
+              <Blogs />
+            </Route>
+          </Switch>
+        </div>
+      </BrowserRouter>
     </div>
   )
 }

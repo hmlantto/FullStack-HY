@@ -1,14 +1,17 @@
 import React, { useState } from 'react'
-import PropTypes from 'prop-types'
+import { useDispatch }     from 'react-redux'
+import { Button, Form }    from 'react-bootstrap'
+import { addBlog }         from '../reducers/blogReducer'
+import { setNotification } from '../reducers/notificationReducer'
 
-const CreateBlogForm = ( props ) => {
-  const { createBlog } = props
-
-  const [ blogTitle, setBlogTitle ] = useState( '' )
+const CreateBlogForm = ( { blogFormRef } ) => {
+  const [ blogTitle,  setBlogTitle  ] = useState( '' )
   const [ blogAuthor, setBlogAuthor ] = useState( '' )
-  const [ blogUrl, setBlogUrl ] = useState( '' )
+  const [ blogUrl,    setBlogUrl    ] = useState( '' )
 
-  const addBlog = ( event ) => {
+  const dispatch = useDispatch()
+
+  const createBlog = async ( event ) => {
     event.preventDefault()
 
     const blogObject = {
@@ -17,52 +20,56 @@ const CreateBlogForm = ( props ) => {
       url: blogUrl
     }
 
-    createBlog( blogObject )
+    setBlogTitle( '' )
+    setBlogAuthor( '' )
+    setBlogUrl( '' )
+
+    try {
+      dispatch( addBlog( blogObject ) )
+      blogFormRef.current.toggleVisibility()
+      dispatch( setNotification( `a new blog ${ blogObject.title } by ${ blogObject.author } added`, 'notification', 5 ) )
+    } catch ( exception ) {
+      console.log( exception.message )
+      dispatch( setNotification( exception.message, 'error', 5 ) )
+    }
   }
 
   return (
     <div>
-      <h2>create new</h2>
+      <h2>Create New</h2>
 
-      <form onSubmit={ addBlog }>
-        <div>
-          title:
-          <input
+      <Form onSubmit={ createBlog }>
+        <Form.Group>
+          <Form.Label>Title:</Form.Label>
+          <Form.Control
             type="text"
             value={ blogTitle }
             name="title"
-            id="title"
             onChange={({ target }) => setBlogTitle( target.value )}
           />
-        </div>
-        <div>
-          author:
-          <input
+        </Form.Group>
+        <Form.Group>
+          <Form.Label>Author:</Form.Label>
+          <Form.Control
             type="text"
             value={ blogAuthor }
             name="author"
-            id="author"
             onChange={({ target }) => setBlogAuthor( target.value )}
           />
-        </div>
-        <div>
-          url:
-          <input
+        </Form.Group>
+        <Form.Group>
+          <Form.Label>Url:</Form.Label>
+          <Form.Control
             type="text"
             value={ blogUrl }
             name="url"
-            id="url"
             onChange={({ target }) => setBlogUrl( target.value )}
           />
-        </div>
-        <button type="submit" id="add-blog-button">create</button>
-      </form>
+        </Form.Group>
+        <Button variant="primary" type="submit">Create</Button>
+      </Form>
     </div>
   )
-}
-
-CreateBlogForm.propTypes = {
-  createBlog: PropTypes.func.isRequired
 }
 
 export default CreateBlogForm

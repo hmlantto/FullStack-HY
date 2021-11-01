@@ -1,25 +1,24 @@
-import React, { useState } from 'react'
-import PropTypes from 'prop-types'
-import blogService from '../services/blogs'
+import React, { useState }          from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { useParams, useHistory }    from 'react-router-dom'
+import { Button, Form, Row, Col }   from 'react-bootstrap'
 
-const Blog = ( props ) => {
-  const { blog, user, onBlogLiked, onBlogDeleted } = props
+import { likeBlog, deleteBlog, createComment } from '../reducers/blogReducer'
+import { setNotification }                     from '../reducers/notificationReducer'
 
-  const [ showAll, setShowAll ] = useState( false )
+const Blog = ( { user } ) => {
+  const [ comment, setComment ] = useState( '' )
+
+  const id       = useParams().id
+  const blog     = useSelector( state => state.blogs ).find( n => n.id === id )
+  const dispatch = useDispatch()
+  const history  = useHistory()
+
+  if ( !blog || !user ) {
+    return null
+  }
 
   const hideDeleteButton = { display: blog.user.username === user.username ? '' : 'none' }
-
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5
-  }
-
-  const toggleVisibility = () => {
-    setShowAll( !showAll )
-  }
 
   const addLike = async ( event ) => {
     event.preventDefault()
@@ -32,7 +31,11 @@ const Blog = ( props ) => {
       user: blog.user.id
     }
 
-    onBlogLiked( blog.id, blogObject )
+    try {
+      dispatch( likeBlog( id, blogObject ) )
+    } catch ( exception ) {
+      console.log( exception.message )
+    }
   }
 
   const removeBlog = async ( event ) => {
@@ -40,41 +43,73 @@ const Blog = ( props ) => {
 
     if ( window.confirm( `Remove blog ${ blog.title } by ${ blog.author }?` ) ) {
       try {
-        await blogService.remove( blog.id )
-        onBlogDeleted( blog.id )
+        dispatch( deleteBlog( id ) )
+        history.push ( '/' )
       } catch( exception ) {
         console.log( exception.message )
       }
     }
   }
 
-  if ( showAll === false ) {
-    return (
-      <div className="blog-element" style={ blogStyle }>
-        { blog.title } { blog.author } <button type="button" onClick={ toggleVisibility }>view</button>
-      </div>
-    )
+  const addComment = async ( event ) => {
+    event.preventDefault()
+
+    const commentObject = {
+      content: comment
+    }
+
+    setComment( '' )
+
+    try {
+      dispatch( createComment( id, commentObject ) )
+    } catch ( exception ) {
+      console.log( exception.message )
+      dispatch( setNotification( exception.message, 'error', 5 ) )
+    }
   }
 
   return (
-    <div className="blog-element" style={ blogStyle }>
-      { blog.title } { blog.author } <button type="button" onClick={ toggleVisibility }>hide</button><br />
-      { blog.url }<br />
-      likes { blog.likes } <button type="button" onClick={ addLike }>like</button><br />
-      { blog.user.name }
-      <span style={ hideDeleteButton }>
-        <br />
-        <button type="button" style={{ backgroundColor: '#809fff' }} onClick={ removeBlog }>remove</button>
-      </span>
+    <div>
+      <h2>{ blog.title } by { blog.author }</h2>
+      <p>
+        { blog.url }<br />
+        { blog.likes } likes <Button variant="outline-primary" size="sm" className="small-button" type="button" onClick={ addLike }>like</Button><br />
+        added by { blog.user.name }
+        <span style={ hideDeleteButton }>
+          <br />
+          <Button variant="danger" size="sm" type="button" onClick={ removeBlog }>remove</Button>
+        </span>
+      </p>
+
+      <h3>Comments</h3>
+
+      <Form onSubmit={ addComment }>
+        <Row>
+          <Col>
+            <Form.Control
+              size="sm"
+              type="text"
+              value={ comment }
+              name="comment-content"
+              placeholder="Add new comment"
+              onChange={({ target }) => setComment( target.value )}
+            />
+          </Col>
+          <Col>
+            <Button variant="primary" size="sm" type="submit">Create</Button>
+          </Col>
+        </Row>
+      </Form>
+
+      <ul style={ { marginTop: '1rem' } }>
+        { blog.comments.map( comment =>
+          <li key={ comment.id }>
+            { comment.content }
+          </li>
+        )}
+      </ul>
     </div>
   )
-}
-
-Blog.propTypes = {
-  blog: PropTypes.object.isRequired,
-  user: PropTypes.object.isRequired,
-  onBlogLiked: PropTypes.func.isRequired,
-  onBlogDeleted: PropTypes.func.isRequired
 }
 
 export default Blog
